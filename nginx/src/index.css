@@ -1,0 +1,16 @@
+/* index.css - Estilos globais básicos */
+
+/* Reset básico para funcionar bem com o Tabler */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.react-confirm-alert-overlay {
+  background: rgba(0, 0, 0, 0.3) !important; /* 0.3 = mais transparente */
+}

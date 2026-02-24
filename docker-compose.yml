@@ -1,0 +1,91 @@
+services:
+    sqlserver:
+        image: mcr.microsoft.com/mssql/server:latest
+        container_name: sqlserver_covid
+        ports:
+            - "${SQLSERVER_PORT:-1433}:1433"
+        environment:
+            ACCEPT_EULA: Y
+            SA_PASSWORD: ${SA_PASSWORD}
+        volumes:
+            - sql:/var/opt/mssql
+            - ./sql:/script
+        command: >
+                        /bin/bash -c "
+                            /opt/mssql/bin/sqlservr &
+                            while ! /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${SA_PASSWORD}' -Q 'SELECT 1' -C &>/dev/null; do
+                                sleep 5;
+                            done;
+                            /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${SA_PASSWORD}' -i /script/create-db.sql -C;
+                            wait
+                        "
+        networks:
+            - luciano-network
+        healthcheck:
+            test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${SA_PASSWORD}' -Q "IF DB_ID('${DB_NAME}') IS NOT NULL SELECT 1" -C || exit 1
+            interval: 10s
+            retries: 5
+            start_period: 30s
+            timeout: 5s
+         
+    java_api:
+        container_name: java_api
+        ports:
+            - "8080:8080"
+        build:    
+            context: ./api/
+            dockerfile: Dockerfile
+       
+        networks:
+            - luciano-network
+        depends_on:
+             sqlserver:
+                condition: service_healthy   
+        environment:
+            - DATABASE_URL=${DATABASE_URL}
+            - DATABASE_USERNAME=${DATABASE_USERNAME}
+            - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+    etl_java:
+        container_name: etl_java
+        ports:
+            - "8081:8081"
+        build:    
+            context: ./etl_java/
+            dockerfile: Dockerfile
+        volumes:
+            - ./etl_java/data:/app/data
+        networks:
+            - luciano-network
+        depends_on:
+            sqlserver:
+                condition: service_healthy
+            java_api:
+                condition: service_started
+        environment:
+            - DATABASE_URL=${DATABASE_URL}
+            - DATABASE_USERNAME=${DATABASE_USERNAME}
+            - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+    react_app:
+        container_name: react_frontend
+        build: 
+            context: ./nginx/
+            dockerfile: Dockerfile   
+        ports:
+            - "80:80"   
+        networks:
+            - luciano-network 
+        depends_on:
+            - java_api
+            - etl_java
+
+
+
+volumes:
+    sql:
+networks:
+    luciano-network:    
+
+
+
+
+        
