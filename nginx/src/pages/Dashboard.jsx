@@ -216,6 +216,7 @@ const Dashboard = () => {
         if (etlTimerRef.current) {
           clearInterval(etlTimerRef.current);
           etlTimerRef.current = null;
+          window.location.reload(); // Recarrega a página para buscar os dados atualizados após o ETL
         }
         setLoadingEtl(false);
       }

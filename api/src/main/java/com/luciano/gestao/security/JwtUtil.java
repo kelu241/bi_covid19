@@ -29,8 +29,8 @@ public class JwtUtil {
     // Chave secreta fixa (use uma string forte em produção)
     private static final String SECRET = "minha-chave-secreta-supersegura-123456";
         public static final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
-    private final long accessTokenValidity = 1000 * 60 * 15; // 15 minutos
-    private final long refreshTokenValidity = 1000 * 60 * 60 * 24 * 7; // 7 dias
+    private final long accessTokenValidity = 1000 * 60 * 60 * 24; // 1 dia
+    private final long refreshTokenValidity = 1000 * 60 * 60 * 24; // 1 dia
 
     public String generateToken(@NotNull String username) {
         return Jwts.builder()
