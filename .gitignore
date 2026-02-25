@@ -35,8 +35,7 @@ build/
 ### Arquivos CSV gerados
 *.csv 
 
-### Env (docker compose)
-.env
+
 
 #### gz
 
