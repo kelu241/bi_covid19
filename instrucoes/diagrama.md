@@ -24,3 +24,6 @@
 
 
                   https://brasil.io/dataset/covid19/caso_full/
+
+
+                  INSTRUÇÃO: Baixar o .csv no site acima e executar docker compose up
